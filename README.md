@@ -1,2 +1,12 @@
 # DIH4CPS
-This repository includes the python package for shrimp detection in smart aquacultures.
+This package is used to test python packaging. 
+
+## Installation 
+```python
+pip install dih4cps
+```
+
+## Usage
+```python
+from helloworld import say_hello 
+say_hello()
