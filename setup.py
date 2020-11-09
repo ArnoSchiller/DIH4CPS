@@ -7,6 +7,9 @@ setup(
     name='dih4cps',
     version='0.0.1',
     description='Including AI underwater shrimp detection with IoT connection for smart aquacultures.',
+    
+    scripts=['bin/dih4cps'],
+
     py_modules=[
         "configuration", 
         "model_handler",

@@ -1,0 +1,12 @@
+[Unit]
+Description=data acquisition for DIH4CPS
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/dih4cps
+Restart=always
+RestartSec=20
+User=root
+
+[Install]
+WantedBy=multi-user.target

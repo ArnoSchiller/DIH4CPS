@@ -4,3 +4,9 @@
 build/
 
 dist/
+
+src/utils/__pycache__/
+
+src/dih4cps.egg-info/
+
+src/__pycache__/

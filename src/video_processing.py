@@ -46,6 +46,7 @@ class VideoProcessor:
         ## setup the model 
         self.model = Model()
 
+    def start_processing(self):
         ## setup and start the video capture 
         self.video_capture_object = WebcamCapture(self.ring_buffer)
         self.video_capture_thread = threading.Thread(target=
@@ -53,9 +54,9 @@ class VideoProcessor:
         self.video_capture_thread.start()
 
         ## start the analyse thread 
-        #self.video_processor_thread = threading.Thread(target= self.analyse_stream)
-        #self.video_processor_thread.start()
-        self.analyse_stream()
+        self.video_processor_thread = threading.Thread(target= self.analyse_stream)
+        self.video_processor_thread.start()
+        #self.analyse_stream()
 
     def analyse_stream(self, buffer=None):
 
@@ -94,5 +95,9 @@ class VideoProcessor:
                                 scores=scores_str,
                                 num_shrimps=num_shrimps)
 
+def main():
+    vp = VideoProcessor()
+    vp.start_processing()
+
 if __name__ == "__main__":
-    VideoProcessor()
+    main()
