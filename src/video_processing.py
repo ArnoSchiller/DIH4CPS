@@ -42,13 +42,15 @@ class VideoProcessor:
                 print("Error downloading model. Quitting...")
                 quit()
             self.model_handler.download_trained_model(model_name=self.used_model_name)
+        
+        ## setup the webcam capture
+        self.video_capture_object = WebcamCapture(self.ring_buffer)
 
         ## setup the model 
-        self.model = Model()
+        self.model = Model(capture_params=self.video_capture_object.get_cap_params())
 
     def start_processing(self):
         ## setup and start the video capture 
-        self.video_capture_object = WebcamCapture(self.ring_buffer)
         self.video_capture_thread = threading.Thread(target=
                             self.video_capture_object.capture_frames)
         self.video_capture_thread.start()

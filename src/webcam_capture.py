@@ -60,6 +60,11 @@ class WebcamCapture:
         else:
             self.reconnect()
 
+    def get_cap_params(self):
+        return (int(self.capture.get(cv2.CAP_PROP_FPS)), 
+                int(self.capture.get(cv2.CAP_PROP_FRAME_WIDTH)), 
+                int(self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+
     def init_videoCapture(self):
         if platform.node() == 'phyboard-nunki-imx6-1':
             os.system("chmod 777 init_col_phyCAM_v4l_device.sh")

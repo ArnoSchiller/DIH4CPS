@@ -34,7 +34,7 @@ class Model:
 
     @authors:   Arno Schiller (AS)
     @email:     schiller@swms.de
-    @version:   v0.0.2
+    @version:   v1.0.1
     @license:   see  https://github.com/ArnoSchiller/DIH4CPS-PYTESTS
 
     VERSION HISTORY
@@ -44,7 +44,7 @@ class Model:
     v0.0.2      (AS) Included function to save frames if a shrimp   26.10.2020\n
                     was detected.
     v1.0.0      (AS) Included to v3.                                05.11.2020\n
-                    was detected.
+    v1.0.1      (AS) Included streaming for detection results.      19.11.2020\n
     """
     model_label_map_name    = "model_label_map.pbtxt"
     model_graph_name        = "created_model_graph"
@@ -58,8 +58,10 @@ class Model:
 
     def __init__(self,  save_detected_frames=True, 
                         model_name=None, 
-                        with_visualisation=global_with_video_display):
-
+                        with_visualisation=global_with_video_display,
+                        capture_params=None):
+    
+        self.capture_params = capture_params
         # num classes anpassen
 
         self.save_detected_frames = save_detected_frames
@@ -110,9 +112,7 @@ class Model:
             rtmp_url = "rtmp://localhost:1935/live"
 
             # gather video info to ffmpeg
-            fps =  20 # int(cap.get(cv2.CAP_PROP_FPS))
-            width = 255 # int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            height = 255 # int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            (fps, width, height) = self.capture_params
 
             # command and params for ffmpeg
             command = ['ffmpeg',
