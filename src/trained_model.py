@@ -21,6 +21,8 @@ from utils import label_map_util
 if global_with_video_display:
     from utils import visualization_utils as vis_util
 
+import subprocess
+
 
 class Model:
     """
@@ -51,6 +53,8 @@ class Model:
     min_score_thresh = 0.5
 
     image_dir = "images_detected"
+
+    stream_results = True
 
     def __init__(self,  save_detected_frames=True, 
                         model_name=None, 
@@ -98,6 +102,37 @@ class Model:
             if not os.path.exists(self.image_dir):
                 os.mkdir(self.image_dir)
 
+        ## set video stream configuration if needed 
+        if self.stream_results:
+            os.system("sudo /usr/local/nginx/sbin/nginx -s stop")
+            os.system("sudo /usr/local/nginx/sbin/nginx")
+            
+            rtmp_url = "rtmp://localhost:1935/live"
+
+            # gather video info to ffmpeg
+            fps =  20 # int(cap.get(cv2.CAP_PROP_FPS))
+            width = 255 # int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = 255 # int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            # command and params for ffmpeg
+            command = ['ffmpeg',
+                    '-y',
+                    '-f', 'rawvideo',
+                    '-vcodec', 'rawvideo',
+                    '-pix_fmt', 'bgr24',
+                    '-s', "{}x{}".format(width, height),
+                    '-r', str(fps),
+                    '-i', '-',
+                    '-c:v', 'libx264',
+                    '-pix_fmt', 'yuv420p',
+                    '-preset', 'ultrafast',
+                    '-f', 'flv',
+                    rtmp_url]
+
+            # using subprocess and pipe to fetch frame data
+            self.p = subprocess.Popen(command, stdin=subprocess.PIPE)
+
+
 
     def predict(self, frame):
         image_np = frame
@@ -138,7 +173,18 @@ class Model:
                     if cv2.waitKey(25) & 0xFF == ord('q'):
                         cv2.destroyAllWindows()  
                 """
-                
+                if self.stream_results:
+                    vis_util.visualize_boxes_and_labels_on_image_array(
+                        image_np,
+                        np.squeeze(boxes),
+                        np.squeeze(classes).astype(np.int32),
+                        np.squeeze(scores),
+                        self.category_index,
+                        use_normalized_coordinates=True,
+                        line_thickness=8)
+                    # write to pipe
+                    self.p.stdin.write(frame.tobytes())
+
                 boxes = np.squeeze(boxes)
                 scores = np.squeeze(scores)
                 for i in range(boxes.shape[0]):
