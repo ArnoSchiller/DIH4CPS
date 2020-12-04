@@ -54,7 +54,7 @@ class Model:
 
     image_dir = "images_detected"
 
-    stream_results = True
+    stream_results = False
 
     def __init__(self,  save_detected_frames=True, 
                         model_name=None, 

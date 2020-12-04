@@ -4,10 +4,12 @@ import datetime, time
 from model_handler import ModelHandler
 from mqtt_connection import MQTTConnection
 from ring_buffer import RingBuffer
-from trained_model import Model
 from webcam_capture import WebcamCapture
+from stream_capture import StreamCapture
+from configuration import global_user_name, global_use_stream_input
 
-from configuration import global_user_name
+#from trained_model import Model
+from custom_model import Model
 
 class VideoProcessor:
     """
@@ -44,8 +46,11 @@ class VideoProcessor:
             self.model_handler.download_trained_model(model_name=self.used_model_name)
         
         ## setup the webcam capture
-        self.video_capture_object = WebcamCapture(self.ring_buffer)
-
+        if global_use_stream_input:
+            self.video_capture_object = StreamCapture(self.ring_buffer)
+        else:
+            self.video_capture_object = WebcamCapture(self.ring_buffer)
+        
         ## setup the model 
         self.model = Model(capture_params=self.video_capture_object.get_cap_params())
 
@@ -74,16 +79,16 @@ class VideoProcessor:
             start_time = time.time()
             pred = self.model.predict(frame)
             pred_time = time.time() - start_time
-            self.send_pred_mqtt(pred, time_stamp)
+            self.send_pred_mqtt(pred, pred_speed=pred_time)
             send_time = time.time() - pred_time
 
             print("Pred: {}, Send: {}".format(pred_time, send_time))
 
-    def send_pred_mqtt(self, prediction, timestamp=None):
+    def send_pred_mqtt(self, prediction, pred_speed=0, timestamp=None):
         if timestamp is None:
             timestamp = datetime.datetime.now()
         
-        [num_shrimps, boxes, scores] = prediction
+        [num_shrimps, boxes, scores, boxes_info_str] = prediction
 
         boxes_str = str(boxes)
         scores_str = str(scores)
@@ -95,7 +100,8 @@ class VideoProcessor:
                                 #frame_timestamp=timestamp,
                                 boxes=boxes_str,
                                 scores=scores_str,
-                                num_shrimps=num_shrimps)
+                                num_shrimps=num_shrimps,
+                                boxes_informations=boxes_info_str)
 
 def main():
     vp = VideoProcessor()

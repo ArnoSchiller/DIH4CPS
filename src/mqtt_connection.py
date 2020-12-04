@@ -182,6 +182,7 @@ class MQTTConnection:
                                     frame_timestamp=None,
                                     boxes=None,
                                     scores=None,
+                                    boxes_informations=None,
                                     process_timestamp=None,
                                     file_name=None):
         """
@@ -195,16 +196,21 @@ class MQTTConnection:
         msg += ",version={}".format(process_version)
         msg += ",modelName={}".format(model_name)
         msg += ",scoreMinThresh={}".format(score_min_thresh)
+        """
         if not process_timestamp is None:
             msg += ",processTimestamp={}".format(process_timestamp)
         if not file_name is None:
             msg += ",filename={}".format(file_name)
         if not boxes is None:
             msg += ",boxes={}".format(boxes)
+        if not boxes_informations is None:
+            msg += ",boxes_informations={}".format(boxes_informations)
         if not scores is None:
             msg += ",scores={}".format(scores)
+        """
         msg += " "
         msg += "numShrimps={}".format(num_shrimps)
+        
         if not frame_timestamp is None:
             msg += " "
             msg += self.get_influx_timestamp(ts=frame_timestamp)

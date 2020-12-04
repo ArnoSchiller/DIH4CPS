@@ -16,9 +16,12 @@ v0.0.3      (AS) Restructured configs, movednot needed statements   04.11.2020\n
 
 import os
 
-global_user_name                = "test2"
+global_user_name                = "jetsonNanoTests"
+#global_user_name                = "jetsonNano"
 
 # if the nunki board is used, the connection will be added in the init_videoCapture function (see webcam_capture) 
+
+global_use_stream_input         = True
 
 ## ON BOARD CAMERA 
 #global_camera_connection    = 0 
@@ -30,6 +33,7 @@ global_user_name                = "test2"
 ## AXIS camera 
 #global_camera_connection     = # "http://root:root@192.168.8.136/mjpg/1/video.mjpg"
 global_camera_connection    = "http://root:root@192.168.178.78/mjpg/1/video.mjpg"
+global_stream_connection    = "http://dyndns.swms-consulting.de/live/index.m3u8"
 
 # Cloud 
 global_cloud_access_key         = "minio"
