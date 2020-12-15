@@ -53,6 +53,7 @@ class VideoProcessor:
         
         ## setup the model 
         self.model = Model(capture_params=self.video_capture_object.get_cap_params())
+        (fps, self.w, self.h) = self.video_capture_object.get_cap_params()
 
     def start_processing(self):
         ## setup and start the video capture 
@@ -102,6 +103,17 @@ class VideoProcessor:
                                 scores=scores_str,
                                 num_shrimps=num_shrimps,
                                 boxes_informations=boxes_info_str)
+
+        for box in boxes:
+            self.mqtt_connection.sendBoxMessage( user=self.user,
+                                    process_version="01",
+                                    model_name=self.used_model_name,
+                                    score_min_thresh=self.model.min_score_thresh,
+                                    frame_width=self.w,
+                                    frame_height=self.h,
+                                    #frame_timestamp=timestamp,
+                                    box=box)                       
+    
 
 def main():
     vp = VideoProcessor()

@@ -93,10 +93,6 @@ class Model:
         categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
         category_index = label_map_util.create_category_index(categories)
 
-        label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
-        categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
-        category_index = label_map_util.create_category_index(categories)
-
     def calculate_box_intense(self, image, box):
         threshold_value = 128
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

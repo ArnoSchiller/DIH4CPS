@@ -216,6 +216,36 @@ class MQTTConnection:
             msg += self.get_influx_timestamp(ts=frame_timestamp)
         print(msg)
         res = self.sendMessage(msg)
+        
+    def sendBoxMessage(self, user, 
+                            process_version, 
+                            model_name,
+                            score_min_thresh,
+                            box,
+                            frame_width,
+                            frame_height,
+                            frame_timestamp=None,
+                            file_name=None):
+
+        msg = "boxes,user={}".format(user)
+        msg += ",modul=VideoProcessing,process=ProcessVideoStream"#ProcessPreviousVideos"
+        msg += ",version={}".format(process_version)
+        msg += ",modelName={}".format(model_name)
+        msg += ",scoreMinThresh={}".format(score_min_thresh)
+        [xmin, ymin, xmax, ymax] = box
+        msg += ",xmin={}".format(xmin)
+        msg += ",ymin={}".format(ymin)
+        msg += ",xmax={}".format(xmax)
+        msg += ",ymax={}".format(ymax)
+        msg += ",frameWidth={}".format(frame_width)
+        msg += ",frameHeight={}".format(frame_height)
+        msg += " boxSize={}".format((xmax - xmin) * (ymax - ymin))
+        
+        if not frame_timestamp is None:
+            msg += " "
+            msg += self.get_influx_timestamp(ts=frame_timestamp)
+        print(msg)
+        res = self.sendMessage(msg)
 
     def get_influx_timestamp(self, ts):
         """
