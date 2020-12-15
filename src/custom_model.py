@@ -10,8 +10,9 @@ from io import StringIO
 from model_handler import ModelHandler
 from configuration import global_with_video_display
 
-BASE_PATH = os.path.abspath("C:/Users/Schiller/Google Drive/ObjectDetection")
-sys.path.append(os.path.join(BASE_PATH, "tf2_object_detection_API/models/research"))
+# BASE_PATH = os.path.abspath("C:/Users/Schiller/Google Drive/ObjectDetection")
+#BASE_PATH = os.path.dirname(__file__)
+#sys.path.append(os.path.join(BASE_PATH, "tf2_object_detection_API/models/research"))
 
 from utils import label_map_util
 if global_with_video_display:
@@ -68,9 +69,14 @@ class Model:
         PATH_TO_CKPT = os.path.join(file_dir_path, MODEL_GRAPH, 'frozen_inference_graph.pb')
 
         # List of the strings that is used to add correct label for each box.
-        DATASET_PATH = os.path.join(BASE_PATH, "datasets")
+        # DATASET_PATH = os.path.join(BASE_PATH, "datasets")
+        # DATASET_NAME = "dataset-v1-dih4cps"
+        # PATH_TO_LABELS = os.path.join(DATASET_PATH, DATASET_NAME, 'labelmap.pbtxt')
+
+        # DATASET_PATH = os.path.join(BASE_PATH, "datasets")
         DATASET_NAME = "dataset-v1-dih4cps"
-        PATH_TO_LABELS = os.path.join(DATASET_PATH, DATASET_NAME, 'labelmap.pbtxt')
+       # PATH_TO_LABELS = os.path.join(DATASET_PATH, DATASET_NAME, 'labelmap.pbtxt')
+        PATH_TO_LABELS = os.path.join(file_dir_path, 'model_label_map.pbtxt')
 
         NUM_CLASSES = 1 
 
