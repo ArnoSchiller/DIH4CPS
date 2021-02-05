@@ -14,8 +14,8 @@ dih4cps
 
 Python:
 ```python
-from dih4cps import video_processing
-video_processing.main()
+cd src
+python detect.py --source 701 --weights weights/yolov5l_dsv1_aug --send-mqtt 
 ```
 
 ##Testing with pytest

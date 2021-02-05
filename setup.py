@@ -5,19 +5,16 @@ with open("README.md", "r") as fh:
 
 setup(
     name='dih4cps',
-    version='0.0.1',
-    description='Including AI underwater shrimp detection with IoT connection for smart aquacultures.',
+    version='4.0.1',
+    description='Including AI underwater shrimp detection with IoT connection for smart aquacultures using pytorch YOLOv5 model.',
     
     scripts=['bin/dih4cps'],
 
     py_modules=[
         "configuration", 
-        "model_handler",
         "mqtt_connection", 
-        "ring_buffer",
-        "trained_model", 
-        "video_processing",
-        "webcam_capture",
+        "detect",
+        "video_capture",
     ],
     package_dir={'': 'src'},
 
@@ -32,11 +29,22 @@ setup(
     long_description_content_type="text/markdown",
 
     install_requires = [
-        "tensorflow ~= 1.15",
         "paho-mqtt ~= 1.4",
-        "opencv-python ~= 3.4",
-        "boto3 ~= 1.10",
+        "Cython",
+        "matplotlib>=3.2.2",
+        "numpy>=1.18.5",
+        "opencv-python>=4.1.2",
+        "Pillow",
+        "PyYAML>=5.3.1",
+        "scipy>=1.4.1",
+        "tensorboard>=2.2",
+        "torch>=1.7.0",
+        "torchvision>=0.8.1",
+        "tqdm>=4.41.0",
+        "thop",  # FLOPS computation
+        "pycocotools>=2.0",  # COCO mAP
     ],
+
 
     extras_reqire = {
         "dev": [

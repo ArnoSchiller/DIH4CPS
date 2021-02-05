@@ -2,24 +2,17 @@
 MQTTConnection: This class rules the connection to the MQTT broker (iotstack).
 
 Requirements:
-- paho (mqtt api): pip install paho-mqtt (see https://pypi.org/project/paho-mqtt/) 
-  Version 1.4.0
+- paho (mqtt api): pip install paho-mqtt (see https://pypi.org/project/paho-mqtt/) Version 1.4.0
 
 @authors:   Arno Schiller (AS)
 @email:     schiller@swms.de
-@version:   v2.0.0
+@version:   v4.0.0
 @license:   https://github.com/ArnoSchiller/DIH4CPS-PYTESTS
 
 VERSION HISTORY
 Version:    (Author) Description:                                   Date:
-v0.0.1           See v1 (mqtt_connection) for more.    	            07-08-2020\n
-v1.0.0      (AS) Updated to version 2.                              07-09-2020\n
-v1.0.1      (AS) Updated code in case there is no internet          07-09-2020\n
-                connction by using try and except.                            \n
-v1.1.0      (AS) Included functions to send shrimp detections via   21-10-2020\n
-                MQTT. Sending the number of shrimps for each frame.           \n
-v2.0.0      (AS) Included into v3, added more documentation.        04-11-2020\n
-v2.0.1      (AS) Created test function.                             04-11-2020\n
+vX.0.1           See v1-v3 (mqtt_connection) for more.	            XX-XX-XXXX\n
+v4.0.0      (AS) Removed not needed functions. Updated function to  05-02-2021\n
 """
 
 import paho.mqtt.client as mqtt
@@ -55,7 +48,6 @@ class MQTTConnection:
         list of possible informations, warnings and errors to send to MQTT server 
         (API for WebcamCapture and CloudConnection).
     """
-    # SSL/TLS1.2 aktivieren. Pub auf den Topic IOT/{irgendwas}
     
     mqtt_host   = global_mqtt_host
     user_name   = global_mqtt_user_name
@@ -68,57 +60,6 @@ class MQTTConnection:
 
     topic = "IOT/test"
 
-    status_list = {
-        "WebcamCapture" : {
-            # Open camera
-            "ClosedCamera"          : "modul=WebcamCapture,process=OpenCamera status=0",
-            "OpeningCamera"         : "modul=WebcamCapture,process=OpenCamera status=1",
-            "OpenedCamera"          : "modul=WebcamCapture,process=OpenCamera status=2",
-
-            "OpeningCameraFailed"   : "modul=WebcamCapture,process=OpenCamera status=4",
-
-            "OpenCameraError"       : "modul=WebcamCapture,process=OpenCamera status=10",
-
-            "CapturedFrame"         : "modul=WebcamCapture,process=CaptureFrame status=2",
-        },
-
-        "VideoRecorder" : {
-            # Open writer
-            "ClosedWriter"          : "modul=VideoRecorder,process=OpenWriter status=0",
-            "OpeningWriter"         : "modul=VideoRecorder,process=OpenWriter status=1",
-            "OpenedWriter"          : "modul=VideoRecorder,process=OpenWriter status=2",
-
-            "OpenFileWriterFailed"  : "modul=VideoRecorder,process=OpenWriter status=4",
-
-            "OpenWriterError"       : "modul=VideoRecorder,process=OpenWriter status=10",
-
-            # Recording file
-            "RecordingFile"         : "modul=VideoRecorder,process=RecordFile status=1",
-            "RecordedFile"          : "modul=VideoRecorder,process=RecordFile status=2",
-
-            "RecordLostConnection"  : "modul=VideoRecorder,process=RecordFile status=9",
-            "RecordFileError"       : "modul=VideoRecorder,process=RecordFile status=10",
-        },
-
-        "CloudConnection" : {
-            # Upload files 
-            "UploadReady"       	: "modul=CloudConnection,process=UploadFile status=0",
-            "UploadingFile"         : "modul=CloudConnection,process=UploadFile status=1",
-            "UploadedFile"          : "modul=CloudConnection,process=UploadFile status=2",
-
-            "ClientError"           : "modul=CloudConnection,process=UploadFile status=7",
-            "FileNotFound"          : "modul=CloudConnection,process=UploadFile status=8",
-            "NoCredentials"         : "modul=CloudConnection,process=UploadFile status=9",
-            "UploadError"           : "modul=CloudConnection,process=UploadFile status=10",
-
-            # connecting to server
-            "DisconnectedServer"    : "modul=CloudConnection,process=ConnectServer status=0",
-            "ConnectingToServer"    : "modul=CloudConnection,process=ConnectServer status=1",
-            "ConnectedToServer"     : "modul=CloudConnection,process=ConnectServer status=2",
-
-            "ConnectServerError"    : "modul=CloudConnection,process=ConnectServer status=10"
-        }
-    }
 
     def __init__(self):
         """ 
@@ -159,97 +100,84 @@ class MQTTConnection:
         """
         Send test messages to the broker. Returns true, if sending was successful, else return false.
         """
-        msg = "test"
+        msg = "testing MQTT"
         res = self.sendMessage(msg)
         return res[0] == 0
 
-    def sendProcessMessage(self, user, message, **options):
-        """
-        Send a process status message to the broker using the influx syntax. All possible messages are listed in status_list seperat for every process. Also you can add more options:
-        --file      name of current file
-        """
-        msg = "process,user={},".format(user)
-        if not options.get("file")  == None:
-            msg += "file={},".format(options.get("file")) 
-        msg += "{}".format(message)
-        res = self.sendMessage(msg)
+    def sendDetectionMessage(self,  
+                            # context informations (tag_set)
+                            user, 
+                            location_ref,
 
-    def sendDetectionMessage(self,  user, 
-                                    process_version, 
-                                    model_name,
-                                    score_min_thresh,
-                                    num_shrimps,
-                                    frame_timestamp=None,
-                                    boxes=None,
-                                    scores=None,
-                                    boxes_informations=None,
-                                    process_timestamp=None,
-                                    file_name=None):
-        """
-        Sending the detected number of shrimps via MQTT.
-
-        Influx string syntax like:
-        shrimp,user={u},modul=VideoProcessing,process=ProcessPreviousVideos, version={v},modelName={m}, scoreMinThresh={s}[, processTimestamp={p},filename={f},boxes={b},scores{c}] numShrimps={n} timestamp
-        """
-        msg = "shrimp,user={}".format(user)
-        msg += ",modul=VideoProcessing,process=ProcessVideoStream"#ProcessPreviousVideos"
-        msg += ",version={}".format(process_version)
-        msg += ",modelName={}".format(model_name)
-        msg += ",scoreMinThresh={}".format(score_min_thresh)
-        """
-        if not process_timestamp is None:
-            msg += ",processTimestamp={}".format(process_timestamp)
-        if not file_name is None:
-            msg += ",filename={}".format(file_name)
-        if not boxes is None:
-            msg += ",boxes={}".format(boxes)
-        if not boxes_informations is None:
-            msg += ",boxes_informations={}".format(boxes_informations)
-        if not scores is None:
-            msg += ",scores={}".format(scores)
-        """
-        msg += " "
-        msg += "numShrimps={}".format(num_shrimps)
-        
-        if not frame_timestamp is None:
-            msg += " "
-            msg += self.get_influx_timestamp(ts=frame_timestamp)
-        print(msg)
-        res = self.sendMessage(msg)
-        
-    def sendBoxMessage(self, user, 
-                            process_version, 
+                            # detection informations (tag_set)
                             model_name,
                             score_min_thresh,
-                            box,
-                            frame_width,
-                            frame_height,
-                            frame_timestamp=None,
-                            file_name=None):
+                            iou_min_thresh,
+                            detection_idx,
+                            
+                            # detection informations (field_set)
+                            x_center,
+                            y_center,
+                            box_w,
+                            box_h,
+                            box_area,
+                            detected_class_idx,
+                            detected_score,
 
-        msg = "boxes,user={}".format(user)
-        msg += ",modul=VideoProcessing,process=ProcessVideoStream"#ProcessPreviousVideos"
-        msg += ",version={}".format(process_version)
+                            # additional tags (tag_set)
+                            file_name=None, # for processing video files
+
+                            # timestamp
+                            timestamp=None):
+
+        """
+        Sending the detected bounding box information via MQTT.
+
+        Influx string syntax like:
+        shrimp,user={u},process=ProcessPreviousVideos,location={l},modelName={m},scoreMinThresh={s},iouMinThresh={i},detection_idx={idx}[,filename={f}] x_center={x_c},y_center={y_c},box_w={box_w},box_h={box_h},box_area={box_area},class_idx={class_idx},score={score} timestamp
+        """
+
+        # measurement
+        msg = global_measurement
+        
+        # tag_set
+        msg += ",user={}".format(user)
+        msg += ",process=ProcessVideoStream"#ProcessPreviousVideos"
+        msg += ",location={}".format(location_ref)
         msg += ",modelName={}".format(model_name)
         msg += ",scoreMinThresh={}".format(score_min_thresh)
-        [xmin, ymin, xmax, ymax] = box
-        msg += ",xmin={}".format(xmin)
-        msg += ",ymin={}".format(ymin)
-        msg += ",xmax={}".format(xmax)
-        msg += ",ymax={}".format(ymax)
-        msg += ",frameWidth={}".format(frame_width)
-        msg += ",frameHeight={}".format(frame_height)
-        msg += " boxSize={}".format((xmax - xmin) * (ymax - ymin))
+        msg += ",iouMinThresh={}".format(iou_min_thresh)
+        msg += ",detection_idx={}".format(detection_idx)
+
+        if not file_name is None:
+            msg += ",filename={}".format(file_name)
+
+        # field_set
+        msg += " "
+        msg += "x_center={}".format(x_center)
+        msg += ",y_center={}".format(y_center)
+        msg += ",box_w={}".format(box_w)
+        msg += ",box_h={}".format(box_h)
+        msg += ",box_area={}".format(box_area)
+        msg += ",class_idx={}".format(detected_class_idx)
+        msg += ",score={}".format(detected_score)
         
-        if not frame_timestamp is None:
+        # timestamp
+        if not timestamp is None:
             msg += " "
-            msg += self.get_influx_timestamp(ts=frame_timestamp)
+            msg += self.get_influx_timestamp(ts=timestamp)
         print(msg)
         res = self.sendMessage(msg)
-
+        return res
+    
     def get_influx_timestamp(self, ts):
         """
-        Converts a timestamp with format YEAR-MONTH-DAY_HOUR-MIN-SEC-MILLISEC to a millisecond format (Difference between timestamp and basic timestamp 1677-09-21T00:12:43.145224194Z).
+        Converts a timestamp with format YEAR-MONTH-DAY_HOUR-MIN-SEC-MILLISEC to a nanosecond format (Difference between timestamp and basic timestamp 1677-09-21T00:12:43.145224194Z).
+
+        Inputs:
+            ts (int):       timestamp in ns format
+            ts (string):    timestamp in YYYY-MM-DD_HH-MM-SS-MS format
+            ts (datetime):  datetime object
         """
         
         if ts.__class__.__name__ == 'str':
@@ -258,6 +186,10 @@ class MQTTConnection:
             ts_time = ts_time.split("-")
 
             ts = datetime.datetime(int(ts_date[0]), int(ts_date[1]),int(ts_date[2]), int(ts_time[0]),int(ts_time[1]),int(ts_time[2]),int(ts_time[3])*1000)
+
+        if ts.__class__.__name__ == 'int':
+            # --> allready in ns format
+            return "{:.0f}".format(ts)
 
         # 1677-09-21T00:12:43.145224194Z
         base_ts = datetime.datetime(1677, 9, 21, 0, 12, 43, 145224)
@@ -296,13 +228,7 @@ def on_message(client, userdata, msg):
 if __name__ == '__main__':
     print("Run test_mqtt_connection.")
 
-    """ debugging Influx timestamp
-    conn = MQTTConnection()
-    print(conn.get_influx_timestamp("2020-10-19_20-30-45-250"))
-    print(time.time_ns())
-    #"""
-    """ debugging MQTT
+    #""" debugging MQTT
     conn = MQTTConnection()
     conn.testloop()
-    conn.sendMessage("temperature,location=CPU,modul=SystemMonitoring,user=test1 temperature=20")
     #"""
