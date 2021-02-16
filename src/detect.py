@@ -76,8 +76,9 @@ def detect(save_img=False):
             img = img.unsqueeze(0)
 
         ### Addition: timestamp in ns
-        timestamp_ns = time.time_ns()
-        ##########################################
+        #timestamp_ns = time.time_ns() # python >= 3.7
+        timestamp_ns = int(time.time() * 1000000000)
+	##########################################
         
         # Inference
         t1 = time_synchronized()
