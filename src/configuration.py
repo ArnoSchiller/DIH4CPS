@@ -17,7 +17,7 @@ import os
 import cv2
 
 ## contect informations
-global_measurement          = "shrimps"
+global_measurement          = "shrimps2"
 global_user_name            = "jetsonNanoTests"
 global_location             = "test_location"
 
