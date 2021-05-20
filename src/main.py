@@ -5,8 +5,11 @@ import time
 import cv2
 import os
 
+import sys
+sys.path.append("./cameras")
+
 from cameras.camera_interface import CameraInterface, ImageCallbackData, CameraTypes
-# from yolov5_detection import handle_detection
+from yolov5_detection import handle_detection
 
 def live_stream(data:ImageCallbackData):
 
@@ -100,23 +103,27 @@ ci.stop_pipeline()
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--camera_type', type=str, default='csi', help='csi, ip or tis')
+    parser.add_argument('--connection', type=str, default='', help='"" for CSI, PROTOCOL://IP_PORT for IP camera and serial numnber for TIS camera.')
     parser.add_argument('--function', type=str, default='live_stream', help='live_stream, record_video or run_detection')
     parser.add_argument('--show_stream', action='store_true', help='set true to view stream')
     opt = parser.parse_args()
     
-    ci = CameraInterface(   camera_type=CameraTypes.TIS,
-                            camera_connection="06120036",
+    camera_type = CameraTypes.fromString(opt.camera_type)
+    if camera_type == False:
+        print(f"Camera tape not valid: {opt.camera_type}")
+        quit()
+
+    ci = CameraInterface( camera_type=camera_type,
+                            camera_connection=opt.connection,
                             frame_rate="10/1" )
-    """
-    ci = CameraInterface(   camera_type=CameraTypes.CSI,
-                            camera_connection="1",
-                            frame_rate="10/1" )
-    #"""
     
     if opt.function == 'live_stream':
         ci.set_image_handling(live_stream)
     elif opt.function == 'record_video':
         ci.set_image_handling(record_video)
+    elif opt.function == 'run_detection':
+        ci.set_image_handling(handle_detection)
     else:
         print("Function not valid.")
         quit()

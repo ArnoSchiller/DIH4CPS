@@ -15,3 +15,5 @@ test/__pycache__/
 src/models/__pycache__/__init__.cpython-37.pyc
 src/models/__pycache__/common.cpython-37.pyc
 src/models/__pycache__/experimental.cpython-37.pyc
+src/cameras/__pycache__/camera_interface.cpython-38.pyc
+src/cameras/__pycache__/TIS.cpython-38.pyc

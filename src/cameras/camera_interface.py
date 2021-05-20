@@ -4,14 +4,24 @@ import cv2
 
 from enum import Enum
 
-import sys
-sys.path.append("./cameras")
 import TIS, CSI_IP
 
 class CameraTypes(Enum):
     TIS = 0
     CSI = 1
     IP = 2
+
+    def fromString(s:str):
+        if( s.lower() == "tis" ):
+            return CameraTypes.TIS
+
+        if( s.lower() == "csi" ):
+            return CameraTypes.CSI
+            
+        if( s.lower() == "ip" ):
+            return CameraTypes.IP
+
+        return False
 
     def toString(pf):
         if( pf == CameraTypes.TIS ):
@@ -39,8 +49,6 @@ class SinkFormats(Enum):
 
         if( pf == SinkFormats.BGRA ):
             return "BGRx"
-
-        return "BGRx"
 
 
 class ImageCallbackData:

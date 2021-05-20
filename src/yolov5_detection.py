@@ -2,6 +2,11 @@ from configuration import global_location, global_user_name
 from camera_interface import ImageCallbackData
 
 def handle_detection(*data:ImageCallbackData):
+    
+    m_fps = data.fps
+    m_frame_width = data.frame_width
+    m_frame_height = data.frame_height
+
     setup_model()
     
     t0 = time.time()
@@ -60,6 +65,9 @@ m_half = None
 m_model = None
 m_mqtt = None
 
+m_fps = None
+m_frame_width = None
+m_frame_height = None
 
 def setup_model(model_name,
                 mode="video",
@@ -214,9 +222,9 @@ def run_detection_on_image(img, timestamp=""):
                         vid_writer.release()  # release previous video writer
 
                     fourcc = 'mp4v'  # output video codec
-                    fps = vid_cap.get(cv2.CAP_PROP_FPS)
-                    w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                    h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    fps = m_fps
+                    w = int(m_frame_width)
+                    h = int(m_frame_height)
                     vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*fourcc), fps, (w, h))
                 vid_writer.write(im0)
 
