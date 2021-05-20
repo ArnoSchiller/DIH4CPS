@@ -1,5 +1,8 @@
 import cv2
 import threading
+
+import sys
+sys.path.append("./cameras")
 from camera_interface import CameraTypes
 
 def csi_gstreamer_pipeline(

@@ -63,7 +63,7 @@ def record_video(data:ImageCallbackData):
                 if data.newImageReceived is True:
                         print(data.timestamp)
                         data.newImageReceived = False
-                        if opt.view_stream:
+                        if opt.show_stream:
                             cv2.imshow('Recording...', data.image)
                         rec_file.write(data.image)
                 else:
