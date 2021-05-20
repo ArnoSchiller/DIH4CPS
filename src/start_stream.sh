@@ -1,1 +1,0 @@
-gst-launch-1.0 tcambin ! video/x-raw, format=GRAY8, width=640, height=480, framerate=15/1 ! videoconvert ! x264enc tune=zerolatency byte-stream=true bitrate=500 threads=2 ! mpegtsmux ! tcpserversink host=192.168.178.73 port=5004
