@@ -4,7 +4,7 @@ import cv2
 
 from enum import Enum
 
-from cameras import TIS, CSI_IP
+from . import TIS, CSI_IP
 
 class CameraTypes(Enum):
     TIS = 0

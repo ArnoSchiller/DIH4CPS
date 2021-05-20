@@ -5,7 +5,7 @@ import time
 import cv2
 import os
 
-from camera_interface import CameraInterface, ImageCallbackData, CameraTypes
+from cameras.camera_interface import CameraInterface, ImageCallbackData, CameraTypes
 # from yolov5_detection import handle_detection
 
 def live_stream(data:ImageCallbackData):
@@ -103,10 +103,15 @@ if __name__ == '__main__':
     parser.add_argument('--function', type=str, default='live_stream', help='live_stream, record_video or run_detection')
     parser.add_argument('--show_stream', action='store_true', help='set true to view stream')
     opt = parser.parse_args()
-
+    
+    ci = CameraInterface(   camera_type=CameraTypes.TIS,
+                            camera_connection="06120036",
+                            frame_rate="10/1" )
+    """
     ci = CameraInterface(   camera_type=CameraTypes.CSI,
                             camera_connection="1",
                             frame_rate="10/1" )
+    #"""
     
     if opt.function == 'live_stream':
         ci.set_image_handling(live_stream)
