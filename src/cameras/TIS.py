@@ -5,10 +5,11 @@ import gi
 import re
 import numpy
 from enum import Enum
-from gi.repository import GLib, GObject, Gst, Tcam
-
 gi.require_version("Gst", "1.0")
 gi.require_version("Tcam", "0.1")
+gi.require_version('Gtk', '2.0')
+from gi.repository import GLib, GObject, Gst, Tcam
+
 
 
 
@@ -32,6 +33,10 @@ class SinkFormats(Enum):
 
         return "BGRx"
 
+def TIS_list_available_cameras():
+    tis = TIS()
+    tis.list_available_cameras()
+    
 class TIS:
     'The Imaging Source Camera'
 
@@ -244,6 +249,25 @@ class TIS:
     def Set_Image_Callback(self, function, *data):
         self.ImageCallback = function
         self.ImageCallbackData = data
+
+    def list_available_cameras(self):
+        ''' Select a camera, its video format and frame rate
+        :return: True on success, False on nothing selected
+        '''
+        source = Gst.ElementFactory.make("tcamsrc")
+        serials = source.get_device_serials()
+
+        i = 0
+        for single_serial in serials:
+            (return_value, model, identifier, connection_type) = source.get_device_info(single_serial)
+
+            # return value would be False when a non-existant serial is used
+            # since we are iterating get_device_serials this should not happen
+            if return_value:
+                i = i + 1
+                print("{} : Model: {} Serial: {} ".format(i, model,single_serial))
+
+        source = None
 
     def selectDevice(self):
         ''' Select a camera, its video format and frame rate

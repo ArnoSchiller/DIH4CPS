@@ -131,13 +131,11 @@ class CameraInterface:
             self.camera.Set_Image_Callback(on_new_image, self.callback_data)
 
         elif self.camera_type == CameraTypes.CSI:
-            self.camera = CSI_IP()
-            self.camera.openDevice( serial = self.camera_connection, 
+            self.camera = CSI_IP.CSI_IP(self.camera_type)
+            self.camera.openDevice( connection = self.camera_connection, 
                                     width = self.frame_width,
                                     height = self.frame_height,
-                                    framerate = self.frame_rate,
-                                    sinkformat = self.sink_format, 
-                                    showvideo = False)
+                                    framerate = self.frame_rate)
             self.camera.Set_Image_Callback(on_new_image, self.callback_data)
         elif self.camera_type == CameraTypes.IP:
             pass

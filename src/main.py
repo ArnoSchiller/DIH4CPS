@@ -1,3 +1,4 @@
+from cameras.TIS import TIS_list_available_cameras
 from pathlib import Path
 import datetime
 import argparse
@@ -48,7 +49,7 @@ def record_video(data:ImageCallbackData):
  
     # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    rec_file = cv2.VideoWriter( str(rec_file_path), fourcc, data.fps, (data.frame_width,data.frame_height))
+    rec_file = cv2.VideoWriter( str(rec_file_path), fourcc, 20.0, (640,480))
     
     if opt.show_stream:
         cv2.namedWindow('Recording...',cv2.WINDOW_NORMAL)
@@ -64,13 +65,13 @@ def record_video(data:ImageCallbackData):
 
                 # Check, whether there is a new image and handle it.
                 if data.newImageReceived is True:
-                        print(data.timestamp)
-                        data.newImageReceived = False
-                        if opt.show_stream:
-                            cv2.imshow('Recording...', data.image)
-                        rec_file.write(data.image)
+                    print(data.timestamp)
+                    data.newImageReceived = False
+                    #if opt.show_stream:
+                        #cv2.imshow('Recording...', data.image)
+                    rec_file.write(data.image)
                 else:
-                        print("No image received")
+                    print("No image received")
 
                 lastkey = cv2.waitKey(10)
 
@@ -104,18 +105,28 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--camera_type', type=str, default='csi', help='csi, ip or tis')
-    parser.add_argument('--connection', type=str, default='', help='"" for CSI, PROTOCOL://IP_PORT for IP camera and serial numnber for TIS camera.')
+    parser.add_argument('--connection', type=str, default="", help='"" for CSI, PROTOCOL://IP_PORT for IP camera and serial numnber for TIS camera.')
     parser.add_argument('--function', type=str, default='live_stream', help='live_stream, record_video or run_detection')
     parser.add_argument('--show_stream', action='store_true', help='set true to view stream')
     opt = parser.parse_args()
     
     camera_type = CameraTypes.fromString(opt.camera_type)
     if camera_type == False:
-        print(f"Camera tape not valid: {opt.camera_type}")
+        print(f"Camera type not valid: {opt.camera_type}")
         quit()
+    elif camera_type == CameraTypes.TIS:
+        if opt.connection == '' or not type(opt.connection) == str:
+            print("-"*60)
+            print(f"Serial number of TIS camera not valid: {opt.connection}")
+            print(f"add --connection <SERIAL>") 
+            print("Available cameras:")
+            TIS_list_available_cameras()
+            print("-"*60)
+            quit()
+
 
     ci = CameraInterface( camera_type=camera_type,
-                            camera_connection=opt.connection,
+                            camera_connection="06120036",
                             frame_rate="10/1" )
     
     if opt.function == 'live_stream':
