@@ -166,7 +166,7 @@ class MQTTConnection:
         if not timestamp is None:
             msg += " "
             msg += self.get_influx_timestamp(ts=timestamp)
-        print(msg)
+        
         res = self.sendMessage(msg)
         return res
     

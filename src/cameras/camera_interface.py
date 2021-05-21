@@ -67,7 +67,6 @@ class ImageCallbackData:
         self.frame_width = img_w
         self.busy = False
         self.timestamp = None
-        
 
 def on_new_image(camera, userdata):
     '''
@@ -119,7 +118,6 @@ class CameraInterface:
         self.image_handling = function
 
     def setup_camera(self):
-        print(self.callback_data.newImageReceived)
         if self.camera_type == CameraTypes.TIS:
             self.camera = TIS.TIS()
             self.camera.openDevice( serial = self.camera_connection, 

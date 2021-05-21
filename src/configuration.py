@@ -17,9 +17,9 @@ import os
 import cv2
 
 ## contect informations
-global_measurement          = "shrimps2"
-global_user_name            = "jetsonNanoTests"
-global_location             = "test_location"
+global_measurement          = "shrimps"
+global_user_name            = "jetsonNanoDamm"
+global_location             = "B21"
 
 ## detection parameters
 global_model_name           = "yolov5l_dsv1_aug"

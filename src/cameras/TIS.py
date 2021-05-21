@@ -447,3 +447,54 @@ class FmtDesc:
                                                                          resolution.split('x')[0],
                                                                          resolution.split('x')[1],
                                                                          fps)
+
+import datetime
+import cv2
+
+def on_new_image(camera, userdata):
+    '''
+    Callback function, which will be called by the TIS class
+    :param tis: the camera TIS class, that calls this callback
+    :param userdata: This is a class with user data, filled by this call.
+    :return:
+    '''
+    # Avoid being called, while the callback is busy
+    if userdata.busy is True:
+            return
+
+    userdata.busy = True
+    userdata.newImageReceived = True
+    userdata.image = camera.Get_image()
+    userdata.timestamp = datetime.datetime.now()
+    userdata.busy = False
+
+class ImageCallbackData:
+    ''' class for user data passed to the on new image callback function
+    Params:
+    newImageReceived    : True if a new image was received 
+    image               : Last image received
+    busy                : True if handler is busy  
+    '''
+    
+    def __init__(self, newImageReceived, image, fps, img_h, img_w):
+        self.newImageReceived = newImageReceived
+        self.image = image
+        self.fps = float(fps.split("/")[0])
+        self.frame_height = img_h
+        self.frame_width = img_w
+        self.busy = False
+        self.timestamp = None
+        
+
+if __name__ == '__main__':
+    image_data = ImageCallbackData(False, None, "15/1", 480, 640)
+    tis = TIS()
+    tis.openDevice("06120036", 640, 480, "15/1", SinkFormats.GRAY8, True)
+    tis.Set_Image_Callback(on_new_image(tis, image_data))
+    tis.Start_pipeline()
+
+    cv2.namedWindow('Window',cv2.WINDOW_NORMAL)
+    while True:
+        if image_data.newImageReceived:
+            print(image_data.timestamp)
+            cv2.imshow('Window', image_data.image)

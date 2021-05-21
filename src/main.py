@@ -1,5 +1,6 @@
 from cameras.TIS import TIS_list_available_cameras
 from pathlib import Path
+import numpy as np
 import datetime
 import argparse
 import time
@@ -27,7 +28,8 @@ def live_stream(data:ImageCallbackData):
 
                 # Check, whether there is a new image and handle it.
                 if data.newImageReceived is True:
-                        print(data.timestamp)
+                        
+                        print(data.image)
                         data.newImageReceived = False
                         cv2.imshow('Window', data.image)
                 else:
@@ -45,11 +47,11 @@ def record_video(data:ImageCallbackData):
     rec_dir = Path(Path("recordings") / "videos") 
     rec_dir.mkdir(parents=True, exist_ok=True)
 
-    rec_file_path = Path(rec_dir, timestamp_to_string() + ".mp4")
+    rec_file_path = Path(rec_dir, timestamp_to_string() + ".avi")
  
     # Define the codec and create VideoWriter object
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    rec_file = cv2.VideoWriter( str(rec_file_path), fourcc, 20.0, (640,480))
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    rec_file = cv2.VideoWriter( str(rec_file_path), fourcc, data.fps, (data.frame_width,data.frame_height))
     
     if opt.show_stream:
         cv2.namedWindow('Recording...',cv2.WINDOW_NORMAL)
@@ -67,8 +69,8 @@ def record_video(data:ImageCallbackData):
                 if data.newImageReceived is True:
                     print(data.timestamp)
                     data.newImageReceived = False
-                    #if opt.show_stream:
-                        #cv2.imshow('Recording...', data.image)
+                    if opt.show_stream:
+                        cv2.imshow('Recording...', data.image)
                     rec_file.write(data.image)
                 else:
                     print("No image received")
