@@ -1,3 +1,6 @@
+"""
+on jetson nano: 
+"""
 from cameras.TIS import TIS_list_available_cameras
 from pathlib import Path
 import numpy as np

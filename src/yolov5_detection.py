@@ -10,17 +10,23 @@ def handle_detection(data:ImageCallbackData):
     
     model_name = "yolov5l_dsv1_aug"
     detector.setup_model(model_name=model_name)
-    
-    if data.newImageReceived:
-        img = data.image.copy()
-        # Padded resize
-        t0 = time.time()
-        detector.run_detection_on_image(img, data.timestamp)
-        if detector.save_txt or detector.save_img:
-            s = f"\n{len(list(detector.save_dir.glob('labels/*.txt')))} labels saved to {detector.save_dir / 'labels'}" if detector.save_txt else ''
-            print(f"Results saved to {detector.save_dir}{s}")
 
-        print(f'Done. ({time.time() - t0:.3f}s)')
+    while True:
+        if data.newImageReceived:
+            img = data.image.copy()[:,:,0:3]
+            # Padded resize
+        
+            print("SHAPE", img.shape)
+            t0 = time.time()
+            detector.run_detection_on_image(img, data.timestamp)
+        else:
+            pass
+
+    if detector.save_txt or detector.save_img:
+        s = f"\n{len(list(detector.save_dir.glob('labels/*.txt')))} labels saved to {detector.save_dir / 'labels'}" if detector.save_txt else ''
+        print(f"Results saved to {detector.save_dir}{s}")
+
+    print(f'Done. ({time.time() - t0:.3f}s)')
 
 
 
@@ -110,6 +116,9 @@ class Yolov5Detection:
         self.view_img = view_img
         self.save_conf = save_conf 
 
+        if self.view_img:
+            cv2.namedWindow("Detection")
+
         # used parameters
         device = ''
 
@@ -165,10 +174,13 @@ class Yolov5Detection:
         pred = self.model(img, augment=self.augment)[0]
 
         # Apply NMS
+        print("CLASSES", self.classes)
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, classes=self.classes, agnostic=self.agnostic_nms)
         t2 = time_synchronized()
 
-        
+        s = timestamp_to_string(timestamp)
+        out_name = s
+
         # Process detections
         for i, det in enumerate(pred):  # detections per image
                        
@@ -176,8 +188,6 @@ class Yolov5Detection:
             if len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
-                s = timestamp_to_string(timestamp)
-                out_name = s
                 # Print results
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
@@ -222,8 +232,12 @@ class Yolov5Detection:
 
             # Stream results
             if self.view_img:
-                cv2.imshow(str(out_name), im0)
-                cv2.waitKey(1)
+                if self.mode == "images":
+                    cv2.imshow(str(out_name), im0)
+                    cv2.waitKey(1)
+                else:
+                    cv2.imshow("Detection", im0)
+                    cv2.waitKey(1)
             save_path = str(self.save_dir / out_name)
             # Save results (image with detections)
             if self.save_img:
